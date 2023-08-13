@@ -81,7 +81,8 @@ if __name__ == '__main__':
     while True:
         print("Listening........")
         query = takeCommand()
-        sites = [ ["wikipedia","https://www.wikipedia.com"]
+
+        sites = [ ["wikipedia","https://www.wikipedia.com"],["Git Hub","https://github.com/S-H-A-B-B-Y?tab=repositories"]
                , ["netflix","https://www.netflix.com/browse"], ["google","https://www.google.com"]
                , ["GPT","https://chat.openai.com"], ["movies","https://theflixer.tv/movie"]
                , ["Anime","https://ww4.gogoanime2.org"]]
@@ -95,23 +96,26 @@ if __name__ == '__main__':
             url = "https://www.youtube.com/"
             driver.get(url)
             automateYoutube()
+
         if "open poison" in query:
             musicPath="D:\songs\Poison.mp4"
             os.startfile(musicPath)
+
         games = [
             ["Epic Games", "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe","EpicGamesLauncher.exe"]
-            , ["Sacro", "D:\Sekiro - Shadows Die Twice\sekiro.exe"],
-            ["Last of Us", "D:\The Last of Us - Part I\launcher.exe"]
-            , ["Uncharted", "D:\\UNCHARTED - Legacy of Thieves Collection\Launcher.exe"]
-            , ["Cricket", "D:\Cricket 22\cricket22.exe"]]
+            , ["Sacro", "D:\Sekiro - Shadows Die Twice\sekiro.exe","sekiro.exe"],
+            ["Last of Us", "D:\The Last of Us - Part I\launcher.exe","launcher.exe"]
+            , ["Uncharted", "D:\\UNCHARTED - Legacy of Thieves Collection\Launcher.exe","Launcher.exe"]
+            , ["Cricket", "D:\Cricket 22\cricket22.exe","cricket22.exe"]]
         for game in games:
             if f"open {game[0]}".lower() in query.lower():
                 os.startfile(game[1])
             if f"close {game[0]}".lower() in query.lower():
                 end_Processes(game[2])
+
         if "open Task Manager".lower() in query.lower():
             subprocess.Popen(["taskmgr.exe"])
         if "close Task Manager".lower() in query.lower():
-            end_Processes('Taskmgr')
+            end_Processes('Taskmgr.exe')
 
 

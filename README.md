@@ -1,1 +1,1 @@
-# Desktop-Assistant-Py-Advanced
+# Desktop & AI-Assistant-Py-Advanced powered by OpenAI

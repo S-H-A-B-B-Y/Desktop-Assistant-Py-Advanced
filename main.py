@@ -3,10 +3,10 @@ import speech_recognition as sr
 import win32com.client
 import os
 import webbrowser
+import openai
 
+# import these packages to ineract with the web
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.common.by import By
 
 import subprocess
@@ -20,19 +20,89 @@ def takeCommand():
     with sr.Microphone() as source:
         audio = r.listen(source)
         try:
-            query = r.recognize_google(audio,language="en-pk") #language="ur" for URDU typing but not for speaking
+            # todo: language="ur" for URDU understanding & typing by Recognizer but not for speaking
+            query = r.recognize_google(audio,language="en-pk")
             print(f"User input: {query}")
             return query
         except Exception:
             return "Some Error Occured, Sorry."
 
+def AI(prompt):
+
+    openai.api_key = "API _KEY"
+
+    prompt = prompt[:prompt.find('using GPT')].strip()
+    output = f"GPT response for prompt: {prompt} \n ********************** \n\n"
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+    try:
+        print(response["choices"][0]["message"]["content"])
+    except Exception:
+        return Exception;
+
+    output += response["choices"][0]["message"]["content"]
+
+    if not os.path.exists("Openai"):
+        os.mkdir("Openai")
+    with open(f"Openai/{prompt}.txt","w") as f:
+        f.write(output)
+
+def chat_AI(prompt):
+
+    # TODO: write your API key for openai here
+    openai.api_key = "API _KEY"
+
+    global chat
+    print(f"\nShakaib: {prompt}\n ")
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=1,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+    # Exception is used as there might be a response with zero choices so in that case Exception will be thrown and caught here
+    try:
+        print(f"SOAL: {response['choices'][0]['message']['content']}\n ")
+        say(response["choices"][0]["message"]["content"])
+    except Exception:
+        return Exception
+
+
 def end_Processes(processName):
+
+    # psutil is a safe way to close program as it does not end processes forcefully
     for process in psutil.process_iter(attrs=['pid', 'name']):
         if processName in process.info['name']:
             psutil.Process(process.info['pid']).terminate()
             print(f"closed {processName}")
+
+
 def initialize_driver():
     # opening the youtube in chromedriver
+    # driver = webdriver.Chrome(executable_path="C:\\Users\\Shakaib\\Desktop\\chromedriver.exe")
+    # I haven't specified the driver path as I had set it in environment variables "PATH"
     global driver
     driver = webdriver.Chrome()
 
@@ -57,7 +127,7 @@ def automateYoutube():
             play_button = driver.find_element(By.CSS_SELECTOR, ".ytp-play-button")
             play_button.click()
 
-        if "pause" in search_query:
+        if "stop" in search_query:
             # Pause the video
             pause_button = driver.find_element(By.CSS_SELECTOR, ".ytp-play-button")
             pause_button.click()
@@ -76,8 +146,10 @@ def automateYoutube():
         search_query = takeCommand()
 
 if __name__ == '__main__':
+
     print('PyCharm')
     say("Hello sir I'm Soal")
+
     while True:
         print("Listening........")
         query = takeCommand()
@@ -90,17 +162,8 @@ if __name__ == '__main__':
             if f"Open {site[0]}".lower() in query.lower():
                 webbrowser.open(site[1])
                 say(f"Opening {site[0]} for you")
-        if "open youtube" in query.lower():
-            say(f"Opening youtube for you")
-            initialize_driver()
-            url = "https://www.youtube.com/"
-            driver.get(url)
-            automateYoutube()
 
-        if "open poison" in query:
-            musicPath="D:\songs\Poison.mp4"
-            os.startfile(musicPath)
-
+    # Used list of lists here first parameter is the name of the game, second parameter is the path of the game, third one is the name of the game executable file used to close it
         games = [
             ["Epic Games", "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe","EpicGamesLauncher.exe"]
             , ["Sacro", "D:\Sekiro - Shadows Die Twice\sekiro.exe","sekiro.exe"],
@@ -110,12 +173,33 @@ if __name__ == '__main__':
         for game in games:
             if f"open {game[0]}".lower() in query.lower():
                 os.startfile(game[1])
+                say(f"Opening {game[0]} for you")
             if f"close {game[0]}".lower() in query.lower():
                 end_Processes(game[2])
 
-        if "open Task Manager".lower() in query.lower():
+        if "Using GPT".lower() in query.lower():
+            AI(query)
+
+        elif "open youtube" in query.lower():
+            say(f"Opening youtube for you")
+            initialize_driver()
+            url = "https://www.youtube.com/"
+            driver.get(url)
+            automateYoutube()
+
+    # Its just a template to show that songs can also be played using OS .startfile() and you can implement your own songs using this template
+        elif "open poison" in query:
+            musicPath="D:\songs\Poison.mp4"
+            os.startfile(musicPath)
+
+    # This particular process would not run if you haven't started your script using administrator privileges like "run as administrator"
+    # because it is a system process with sensitive privileges
+        elif "open Task Manager".lower() in query.lower():
             subprocess.Popen(["taskmgr.exe"])
-        if "close Task Manager".lower() in query.lower():
+        elif "close Task Manager".lower() in query.lower():
             end_Processes('Taskmgr.exe')
+
+        else:
+            chat_AI(query)
 
 

@@ -15,21 +15,21 @@ speaker = win32com.client.Dispatch("SAPI.SpVoice")
 
 def say(query):
     speaker.Speak(query)
-def takeCommand():
+def takeCommand(user):
     r = sr.Recognizer()
     with sr.Microphone() as source:
         audio = r.listen(source)
         try:
             # todo: language="ur" for URDU understanding & typing by Recognizer but not for speaking
             query = r.recognize_google(audio,language="en-pk")
-            print(f"User input: {query}")
+            print(f"{user} : {query}")
             return query
         except Exception:
             return "Some Error Occured, Sorry."
 
 def AI(prompt):
 
-    openai.api_key = "API _KEY"
+    openai.api_key = "API KEY HERE"
 
     prompt = prompt[:prompt.find('using GPT')].strip()
     output = f"GPT response for prompt: {prompt} \n ********************** \n\n"
@@ -63,10 +63,7 @@ def AI(prompt):
 def chat_AI(prompt):
 
     # TODO: write your API key for openai here
-    openai.api_key = "API _KEY"
-
-    global chat
-    print(f"\nShakaib: {prompt}\n ")
+    openai.api_key = "API KEY HERE"
 
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k-0613",
@@ -149,10 +146,16 @@ if __name__ == '__main__':
 
     print('PyCharm')
     say("Hello sir I'm Soal")
+    say("Kindly, Tell me your name?")
+
+    user = input("Name: ")
+    say(f"Welcome! {user}. How can I help you today?")
 
     while True:
+        pass_itteration = False
+
         print("Listening........")
-        query = takeCommand()
+        query = takeCommand(user)
 
         sites = [ ["wikipedia","https://www.wikipedia.com"],["Git Hub","https://github.com/S-H-A-B-B-Y?tab=repositories"]
                , ["netflix","https://www.netflix.com/browse"], ["google","https://www.google.com"]
@@ -162,6 +165,7 @@ if __name__ == '__main__':
             if f"Open {site[0]}".lower() in query.lower():
                 webbrowser.open(site[1])
                 say(f"Opening {site[0]} for you")
+                pass_itteration = True
 
     # Used list of lists here first parameter is the name of the game, second parameter is the path of the game, third one is the name of the game executable file used to close it
         games = [
@@ -174,8 +178,13 @@ if __name__ == '__main__':
             if f"open {game[0]}".lower() in query.lower():
                 os.startfile(game[1])
                 say(f"Opening {game[0]} for you")
+                pass_itteration = True
             if f"close {game[0]}".lower() in query.lower():
                 end_Processes(game[2])
+                pass_itteration = True
+
+        if pass_itteration:
+            continue
 
         if "Using GPT".lower() in query.lower():
             AI(query)
